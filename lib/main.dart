@@ -41,7 +41,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     setState(() {
       _expenses.add(
         Expense(
-          // Timestamp used as a quick unique ID
           id: DateTime.now().microsecondsSinceEpoch.toString(),
           title: 'Coffee',
           amount: 2.5,
@@ -52,7 +51,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     });
   }
 
-  // Challenge from Slide 34: Add a second button for Taxi
   void _addTaxi() {
     setState(() {
       _expenses.add(
@@ -68,7 +66,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   }
 
   void _reset() {
-    // setState(_expenses.clear) passes a tear-off as the callback
     setState(_expenses.clear);
   }
 
@@ -89,7 +86,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         ],
       ),
       body: Center(child: _buildSummary(scheme, text)),
-      // Using a Row to hold both buttons from the challenge
+
       floatingActionButton: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
@@ -119,14 +116,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         Text('Welcome to SpendWise', style: text.headlineSmall),
         const SizedBox(height: 8),
 
-        // 2. Used our Extension methods to calculate length and total
         Text(
           '${_expenses.length} expenses · '
           '${_expenses.total.asMoney} USD',
           style: text.bodyLarge,
         ),
 
-        // 3. Display the top category (Challenge from Slide 34)
         if (_expenses.isNotEmpty)
           Padding(
             padding: const EdgeInsets.only(top: 8.0),
