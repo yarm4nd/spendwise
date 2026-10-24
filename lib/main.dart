@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 
+import 'models/category.dart';
+import 'models/expense.dart';
+import 'utils/expense_x.dart';
+
 void main() {
   runApp(const SpendWiseApp());
 }
@@ -30,27 +34,49 @@ class WelcomeScreen extends StatefulWidget {
 }
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
-  int _expenseCount = 0;
-  double _total = 0;
+  // 1. REPLACED old counters with the real List of Expenses
+  final List<Expense> _expenses = [];
 
-  void _addSampleExpense() {
+  void _addCoffee() {
     setState(() {
-      _expenseCount++;
-      _total += 2.50; // a coffee, for now
+      _expenses.add(
+        Expense(
+          // Timestamp used as a quick unique ID
+          id: DateTime.now().microsecondsSinceEpoch.toString(),
+          title: 'Coffee',
+          amount: 2.5,
+          category: Category.food,
+          date: DateTime.now(),
+        ),
+      );
+    });
+  }
+
+  // Challenge from Slide 34: Add a second button for Taxi
+  void _addTaxi() {
+    setState(() {
+      _expenses.add(
+        Expense(
+          id: DateTime.now().microsecondsSinceEpoch.toString(),
+          title: 'Taxi',
+          amount: 4.0,
+          category: Category.transport,
+          date: DateTime.now(),
+        ),
+      );
     });
   }
 
   void _reset() {
-    setState(() {
-      _expenseCount = 0;
-      _total = 0;
-    });
+    // setState(_expenses.clear) passes a tear-off as the callback
+    setState(_expenses.clear);
   }
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final text = Theme.of(context).textTheme;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('SpendWise'),
@@ -63,7 +89,24 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         ],
       ),
       body: Center(child: _buildSummary(scheme, text)),
-      floatingActionButton: _buildFab(),
+      // Using a Row to hold both buttons from the challenge
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton.extended(
+            onPressed: _addTaxi,
+            icon: const Icon(Icons.local_taxi),
+            label: const Text('Add taxi'),
+            backgroundColor: Colors.blue.shade100,
+          ),
+          const SizedBox(width: 12),
+          FloatingActionButton.extended(
+            onPressed: _addCoffee,
+            icon: const Icon(Icons.add),
+            label: const Text('Add coffee'),
+          ),
+        ],
+      ),
     );
   }
 
@@ -75,19 +118,24 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         const SizedBox(height: 16),
         Text('Welcome to SpendWise', style: text.headlineSmall),
         const SizedBox(height: 8),
-        Text(
-          '$_expenseCount expenses · '
-          '${_total.toStringAsFixed(2)} USD',
-        ),
-      ],
-    );
-  }
 
-  Widget _buildFab() {
-    return FloatingActionButton.extended(
-      onPressed: _addSampleExpense,
-      icon: const Icon(Icons.add),
-      label: const Text('Add coffee'),
+        // 2. Used our Extension methods to calculate length and total
+        Text(
+          '${_expenses.length} expenses · '
+          '${_expenses.total.asMoney} USD',
+          style: text.bodyLarge,
+        ),
+
+        // 3. Display the top category (Challenge from Slide 34)
+        if (_expenses.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: Text(
+              'Top: ${_expenses.topCategory?.emoji} ${_expenses.topCategory?.label}',
+              style: TextStyle(color: scheme.onSurfaceVariant),
+            ),
+          ),
+      ],
     );
   }
 }
